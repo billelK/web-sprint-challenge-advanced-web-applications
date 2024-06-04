@@ -114,22 +114,23 @@ export default function App() {
     setMessage("")
     setSpinnerOn(true)
     fetch(articlesUrl,
-      {body: JSON.stringify(article),
+      {
+        body: JSON.stringify(article),
         method: "POST",
-        headers: {"Contnet-Type": "Application/json",
+        headers: {"Content-Type": "Application/json",
         Authorization: token
         }
       }
     )
     .then(res => {
-      // if(!res.ok) {
-      //   throw new Error("Ooops Something Went Wrong!...")
-      // }
-      console.log(res);
+      if(!res.ok) {
+        throw new Error("Ooops Something Went Wrong!...")
+      }
       return res.json()
     })
     .then(data => {
       setMessage(data.message)
+      setArticles([...articles, data.article]) 
       setSpinnerOn(false)
     })
     .catch(error => console.log(error))
