@@ -5,6 +5,7 @@ import LoginForm from './LoginForm'
 import Message from './Message'
 import ArticleForm from './ArticleForm'
 import Spinner from './Spinner'
+import axios from 'axios'
 
 
 const articlesUrl = 'http://localhost:9000/api/articles'
@@ -43,24 +44,33 @@ export default function App() {
     setMessage("")
     setSpinnerOn(true)
     // and launch a request to the proper endpoint.
-    fetch(loginUrl, {
-      body: JSON.stringify({username: username, password: password}),
-      method: "POST",
-      headers: {"Content-Type": "Application/json"}
-    })
+    axios.post("http://localhost:9000/api/articles", 
+      {body: {username, password}}
+    )
     .then(res => {
-      if(!res.ok) {
-        throw new Error("Ooops Something Went Wrong!...")
-      }
-      return res.json()
-    })
-    .then(data=> {
       setSpinnerOn(false)
-      localStorage.setItem("token", data.token)
-      setMessage(data.message)
+      localStorage.setItem("token", res.data.token)
+      setMessage(res.data.message)
       redirectToArticles()
     })
-    .catch(error => console.log(error))
+    // fetch(loginUrl, {
+    //   body: JSON.stringify({username: username, password: password}),
+    //   method: "POST",
+    //   headers: {"Content-Type": "Application/json"}
+    // })
+    // .then(res => {
+    //   if(!res.ok) {
+    //     throw new Error("Ooops Something Went Wrong!...")
+    //   }
+    //   return res.json()
+    // })
+    // .then(data=> {
+    //   setSpinnerOn(false)
+    //   localStorage.setItem("token", data.token)
+    //   setMessage(data.message)
+    //   redirectToArticles()
+    // })
+    // .catch(error => console.log(error))
     // On success, we should set the token to local storage in a 'token' key,
     // put the server success message in its proper state, and redirect
     // to the Articles screen. Don't forget to turn off the spinner!
@@ -73,30 +83,36 @@ export default function App() {
     setSpinnerOn(true)
     // and launch an authenticated request to the proper endpoint.
     const token = localStorage.getItem("token")
-    fetch(articlesUrl,
-      {headers: {Authorization: token}}
-    )
+    axios.get("http://localhost:9000/api/articles", {headers: {Authorization: token}})
     .then(res => {
-      if(!res.ok) {
-        throw new Error("Ooops Something Went Wrong!...")
-      }
-      const contentType = res.headers.get("content-type")
-      if(contentType.includes("application/json")) {
-        return res.json()
-      }
-      if(res.status === 401){
-        redirectToLogin()
-      }
-    })
-    .then(data => {
       setSpinnerOn(false)
-      setArticles(data.articles)
-      setMessage(data.message)
+      setArticles(res.data.articles)
+      setMessage(res.data.message)
     })
-    .catch(error => {
-      setSpinnerOn(false)
-      console.log(error)
-    })
+    // fetch(articlesUrl,
+    //   {headers: {Authorization: token}}
+    // )
+    // .then(res => {
+    //   if(!res.ok) {
+    //     throw new Error("Ooops Something Went Wrong!...")
+    //   }
+    //   const contentType = res.headers.get("content-type")
+    //   if(contentType.includes("application/json")) {
+    //     return res.json()
+    //   }
+    //   if(res.status === 401){
+    //     redirectToLogin()
+    //   }
+    // })
+    // .then(data => {
+    //   setSpinnerOn(false)
+    //   setArticles(data.articles)
+    //   setMessage(data.message)
+    // })
+    // .catch(error => {
+    //   setSpinnerOn(false)
+    //   console.log(error)
+    // })
     // On success, we should set the articles in their proper state and
     // put the server success message in its proper state.
     // If something goes wrong, check the status of the response:
@@ -157,7 +173,7 @@ export default function App() {
       }
       return res.json()
     })
-    .then(data => {
+    .then(data => { 
       setMessage(data.message)
       const updatedArticles = articles.map(article => {
         if(article.article_id === article_id) return data.article

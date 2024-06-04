@@ -25,7 +25,7 @@ export default function Articles(props) {
         !articles.length
           ? 'No articles yet'
           : articles.map(art => {
-            return (
+            return ( 
               <div className="article" key={art.article_id}>
                 <div>
                   <h3>{art.title}</h3>
