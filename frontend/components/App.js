@@ -44,8 +44,8 @@ export default function App() {
     setMessage("")
     setSpinnerOn(true)
     // and launch a request to the proper endpoint.
-    axios.post("http://localhost:9000/api/articles", 
-      {body: {username, password}}
+    axios.post(loginUrl, 
+      {username, password}
     )
     .then(res => {
       setSpinnerOn(false)
@@ -53,6 +53,7 @@ export default function App() {
       setMessage(res.data.message)
       redirectToArticles()
     })
+
     // fetch(loginUrl, {
     //   body: JSON.stringify({username: username, password: password}),
     //   method: "POST",
@@ -74,6 +75,7 @@ export default function App() {
     // On success, we should set the token to local storage in a 'token' key,
     // put the server success message in its proper state, and redirect
     // to the Articles screen. Don't forget to turn off the spinner!
+
   }
 
   const getArticles = () => {
@@ -89,6 +91,7 @@ export default function App() {
       setArticles(res.data.articles)
       setMessage(res.data.message)
     })
+
     // fetch(articlesUrl,
     //   {headers: {Authorization: token}}
     // )
@@ -113,6 +116,7 @@ export default function App() {
     //   setSpinnerOn(false)
     //   console.log(error)
     // })
+
     // On success, we should set the articles in their proper state and
     // put the server success message in its proper state.
     // If something goes wrong, check the status of the response:
@@ -126,91 +130,122 @@ export default function App() {
     // The flow is very similar to the `getArticles` function.
     // You'll know what to do! Use log statements or breakpoints
     // to inspect the response from the server.
+
     const token = localStorage.getItem("token")
     setMessage("")
     setSpinnerOn(true)
-    fetch(articlesUrl,
-      {
-        body: JSON.stringify(article),
-        method: "POST",
-        headers: {"Content-Type": "Application/json",
-        Authorization: token
-        }
-      }
-    )
-    .then(res => {
-      if(!res.ok) {
-        throw new Error("Ooops Something Went Wrong!...")
-      }
-      return res.json()
-    })
-    .then(data => {
-      setMessage(data.message)
-      setArticles([...articles, data.article]) 
-      setSpinnerOn(false)
-    })
-    .catch(error => console.log(error))
+
+    axios.post(articlesUrl, article, { headers: { 'Authorization': token } })
+      .then(res => {
+        setMessage(res.data.message)
+        setArticles([...articles, res.data.article]) 
+        setSpinnerOn(false)
+      })
+
+  //   fetch(articlesUrl,
+  //     {
+  //       body: JSON.stringify(article),
+  //       method: "POST",
+  //       headers: {"Content-Type": "Application/json",
+  //       Authorization: token
+  //       }
+  //     }
+  //   )
+  //   .then(res => {
+  //     if(!res.ok) {
+  //       throw new Error("Ooops Something Went Wrong!...")
+  //     }
+  //     return res.json()
+  //   })
+  //   .then(data => {
+  //     setMessage(data.message)
+  //     setArticles([...articles, data.article]) 
+  //     setSpinnerOn(false)
+  //   })
+  //   .catch(error => console.log(error))
   }
 
   const updateArticle = (article_id, article) => {
     // ✨ implement
+    const token = localStorage.getItem("token")
     setMessage("")
     setSpinnerOn(true)
-    const token = localStorage.getItem("token")
 
-    fetch(`${articlesUrl}/${article_id}`,
-      {
-        body: JSON.stringify(article),
-        method: "PUT",
-        headers: {"Content-Type": "Application/json",
-          Authorization: token
-        }
-      }
-    )
-    .then(res => {
-      if(!res.ok) {
-        throw new Error("Ooops Something Went Wrong!...")
-      }
-      return res.json()
-    })
-    .then(data => { 
-      setMessage(data.message)
-      const updatedArticles = articles.map(article => {
-        if(article.article_id === article_id) return data.article
+    axios.put(`${articlesUrl}/${article_id}`, 
+      article, 
+      { headers: { 'Authorization': token } })
+      .then(res => {
+        setMessage(res.data.message)
+        const updatedArticles = articles.map(article => {
+        if(article.article_id === article_id) return res.data.article
         else return article
       })
-      setArticles(updatedArticles)
-      setSpinnerOn(false)
-    })
-    .catch(error => console.log(error))
+        setArticles(updatedArticles)
+        setSpinnerOn(false)
+      })
+
+    // fetch(`${articlesUrl}/${article_id}`,
+    //   {
+    //     body: JSON.stringify(article),
+    //     method: "PUT",
+    //     headers: {"Content-Type": "Application/json",
+    //       Authorization: token
+    //     }
+    //   }
+    // )
+    // .then(res => {
+    //   if(!res.ok) {
+    //     throw new Error("Ooops Something Went Wrong!...")
+    //   }
+    //   return res.json()
+    // })
+    // .then(data => { 
+    //   setMessage(data.message)
+    //   const updatedArticles = articles.map(article => {
+    //     if(article.article_id === article_id) return data.article
+    //     else return article
+    //   })
+    //   setArticles(updatedArticles)
+    //   setSpinnerOn(false)
+    // })
+    // .catch(error => console.log(error))
     // You got this!
   }
 
   const deleteArticle = article_id => {
     // ✨ implement
+    
+    const token = localStorage.getItem("token")
     setMessage("")
     setSpinnerOn(true)
-    const token = localStorage.getItem("token")
 
-    fetch(`${articlesUrl}/${article_id}`,
-      {
-        headers: {Authorization : token},
-        method: "DELETE"
-      }
-    )
-    .then(res => {
-      if(!res.ok) {
-        throw new Error("Ooops Something Went Wrong!...")
-      }
-      return res.json()
-    })
-    .then(data => {
-      setMessage(data.message)
-      const newArticles = articles.filter(art => art.article_id !== article_id)
-      setArticles(newArticles)
-      setSpinnerOn(false)
-    })
-    .catch(error => console.log(error))
+    axios.delete(`${articlesUrl}/${article_id}`,{ headers: { 'Authorization': token } })
+      .then(res => {
+        setMessage(res.data.message)
+        const newArticles = articles.filter(art => art.article_id !== article_id)
+        setArticles(newArticles)
+        setSpinnerOn(false)
+      })
+
+  //   fetch(`${articlesUrl}/${article_id}`,
+  //     {
+  //       headers: {Authorization : token},
+  //       method: "DELETE"
+  //     }
+  //   )
+  //   .then(res => {
+  //     if(!res.ok) {
+  //       throw new Error("Ooops Something Went Wrong!...")
+  //     }
+  //     return res.json()
+  //   })
+  //   .then(data => {
+  //     setMessage(data.message)
+  //     const newArticles = articles.filter(art => art.article_id !== article_id)
+  //     setArticles(newArticles)
+  //     setSpinnerOn(false)
+  //   })
+  //   .catch(error => console.log(error))
   }
 
   return (
